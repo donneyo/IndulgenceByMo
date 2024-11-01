@@ -1,0 +1,170 @@
+.container {
+  height: calc(100vh - 70px);
+  display: flex;
+  background-color: white;
+}
+
+.desc{
+   color: #0c0a09;
+}
+
+
+.title {
+    color: #0c0a09;
+    font-size: 34px;
+    font-weight: 600;
+}
+
+.choose{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    color: #0c0a09;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.left {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.right {
+  flex: 1;
+  padding: 20px;
+  margin-bottom: -20px;
+}
+
+.imgContainer {
+  width: 80%;
+  height: 80%;
+  position: relative;
+}
+
+.price {
+  color: #422006;
+  font-size: 24px;
+  font-weight: 600;
+  border-bottom: 3px solid #fef08a;
+}
+
+.sizes {
+  margin-top: 10px;
+  width: 40%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.size {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  cursor: pointer;
+}
+
+.size:nth-child(2) {
+  width: 40px;
+  height: 40px;
+}
+
+.size:last-child {
+  width: 50px;
+  height: 50px;
+}
+
+.number {
+  position: absolute;
+  top: -5px;
+  right: -20px;
+  background-color: #fde047;
+  color: #422006;
+  font-size: 12px;
+   font-weight: 500;
+  padding: 0 5px;
+  border-radius: 10px;
+}
+
+.ingredients {
+  display: flex;
+  margin-bottom: 20px;
+
+}
+
+.option {
+  color: #0c0a09;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+.quantity {
+  width: 50px;
+  height: 30px;
+  background-color: white;
+  color: #0c0a09;
+}
+
+
+.button {
+  height: 30px;
+  margin-left: 10px;
+  padding: 3px;
+  background-color: #fde047;
+  color: #0c0a09;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    height: auto;
+    text-align: center;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .imgContainer {
+    width: 70vw;
+    height: 70vw;
+  }
+
+  .title {
+    margin: 5px;
+    color: #0c0a09;
+  }
+
+  .sizes {
+    width: 100%;
+    padding: 0px 20px;
+  }
+
+  .ingredients {
+    display: inline-block;
+  }
+
+  .option {
+    margin: 10px;
+    font-size: 18px;
+  }
+
+  .checkbox {
+    width: 25px;
+    height: 25px;
+  }
+
+  .quantity,
+  .button {
+    height: 50px;
+    padding: 10px 20px;
+  }
+}
