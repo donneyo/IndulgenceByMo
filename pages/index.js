@@ -13,15 +13,16 @@ export default function Home({breadList, admin}) {
 const [close, setClose] =useState(true);
 return (
     <div className={styles.container}>
-        <head>
+        <Head>
             <title>Best Bread cake shop in Lagos</title>
             <meta name="description" content="Best bread shop in town" />
             <link rel="icon" href="/favicon.ico" />
-        </head>
+        </Head>
         <Featured/>
-        {<AddButton setClose={setClose} />}
+        <AddButton setClose={setClose} />
         <BreadList breadList={breadList} />
         {!close && <Add setClose={setClose} />}
+
     </div>
  );
 }
