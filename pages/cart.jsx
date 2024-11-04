@@ -4,18 +4,24 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { reset } from "../redux/cartSlice";
 import OrderDetail from "../components/OrderDetail";
-import { PaystackButton } from "react-paystack"; // Import PaystackButton from react-paystack
+import dynamic from "next/dynamic"; // Import dynamic from Next.js for Paystack
 import styles from "../styles/Cart.module.css";
 import Image from "next/image";
+
+// Dynamically import PaystackButton without server-side rendering
+const PaystackButton = dynamic(() => import("react-paystack").then(mod => mod.PaystackButton), { ssr: false });
 
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
   const [open, setOpen] = useState(false);
   const [cash, setCash] = useState(false);
   const amount = cart.total * 100; // Amount in kobo (NGN)
-  const publicKey = "pk_test_ed79e93cfe74a06f17c7701a837c83c9e01b52cc"; // Replace with your Paystack public key
+
   const dispatch = useDispatch();
   const router = useRouter();
+
+  // Ensure publicKey is available
+  const publicKey = "pk_test_ed79e93cfe74a06f17c7701a837c83c9e01b52cc"; // Replace with your Paystack public key
 
   const createOrder = async (data) => {
     try {
@@ -31,7 +37,6 @@ const Cart = () => {
 
   // Paystack onSuccess callback
   const handlePaystackSuccessAction = (reference) => {
-    // If payment is successful, create the order
     createOrder({
       customer: "Customer Name",
       address: "Customer Address",
@@ -47,9 +52,9 @@ const Cart = () => {
 
   // Paystack config
   const paystackConfig = {
-    reference: new Date().getTime().toString(), // Unique reference for transaction
-    email: "customer@example.com", // Replace with the customer's email
-    amount: amount, // Paystack amount in kobo
+    reference: new Date().getTime().toString(),
+    email: "customer@example.com",
+    amount: amount,
     publicKey: publicKey,
     onSuccess: handlePaystackSuccessAction,
     onClose: handlePaystackCloseAction,
