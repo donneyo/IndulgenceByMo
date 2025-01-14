@@ -1,40 +1,47 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const MONGO_URL = process.env.MONGO_URL
+const MONGO_URL = process.env.MONGO_URL;
 
 if (!MONGO_URL) {
   throw new Error(
-    'Please define the MONGO_URL environment variable inside .env.local'
-  )
+    'Please define the MONGO_URL environment variable inside .env.local or in your production environment settings.'
+  );
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
-let cached = global.mongoose
+// Global cache to prevent multiple connections in development
+let cached = global.mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null }
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect() {
   if (cached.conn) {
-    return cached.conn
+    return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-    }
+    };
 
-    cached.promise = mongoose.connect(MONGO_URL, opts).then((mongoose) => {
-      return mongoose
-    })
+    cached.promise = mongoose
+      .connect(MONGO_URL, opts)
+      .then((mongoose) => mongoose)
+      .catch((error) => {
+        console.error('MongoDB connection error:', error);
+        throw error; // Rethrow the error after logging
+      });
   }
-  cached.conn = await cached.promise
-  return cached.conn
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null; // Reset promise to allow retrying
+    throw error; // Throw the error to the calling function
+  }
+
+  return cached.conn;
 }
 
-export default dbConnect
+export default dbConnect;
