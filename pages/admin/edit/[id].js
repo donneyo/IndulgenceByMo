@@ -6,6 +6,122 @@ import styles from "../../../styles/Product.module.css"; // Adjust to your style
 const EditProduct = () => {
   const router = useRouter();
   const { id } = router.query;
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
+import styles from "../../../styles/Product.module.css"; // Adjust to your stylesheet path
+
+const EditProduct = () => {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (id) {
+      const fetchProduct = async () => {
+        try {
+          const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`
+          );
+          setProduct(res.data);
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching product:", err);
+          setError("Failed to fetch product. Please try again later.");
+          setLoading(false);
+        }
+      };
+
+      fetchProduct();
+    }
+  }, [id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!product.title || !product.prices[0] || !product.img) {
+      alert("All fields are required!");
+      return;
+    }
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
+        {
+          title: product.title,
+          prices: [parseFloat(product.prices[0])], // Ensure price is a number
+          img: product.img,
+        }
+      );
+      alert("Product updated successfully!");
+      router.push("/admin");
+    } catch (err) {
+      console.error("Error updating product:", err);
+      alert("Failed to update product. Please try again.");
+    }
+  };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p className={styles.error}>{error}</p>;
+  }
+
+  return (
+    <div className={styles.container}>
+      <h1>Edit Product</h1>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGroup}>
+          <label htmlFor="title">Title</label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value={product.title || ""}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="price">Price</label>
+          <input
+            id="price"
+            name="prices"
+            type="number"
+            value={product.prices?.[0] || ""}
+            onChange={(e) => handleChange({ ...e, name: "prices", value: [e.target.value] })}
+            min="0"
+            required
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="img">Image URL</label>
+          <input
+            id="img"
+            name="img"
+            type="text"
+            value={product.img || ""}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" className={styles.button}>
+          Update
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default EditProduct;
 
   const [product, setProduct] = useState(null);
   const [title, setTitle] = useState("");
