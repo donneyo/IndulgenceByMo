@@ -1,47 +1,33 @@
-import mongoose from 'mongoose';
-
-const MONGO_URL = process.env.MONGO_URL;
-
-if (!MONGO_URL) {
-  throw new Error(
-    'Please define the MONGO_URL environment variable inside .env.local or in your production environment settings.'
-  );
-}
-
-// Global cache to prevent multiple connections in development
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
 async function dbConnect() {
   if (cached.conn) {
+    console.log('Using existing MongoDB connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
+    console.log('Creating new MongoDB connection');
     const opts = {
       bufferCommands: false,
     };
 
     cached.promise = mongoose
       .connect(MONGO_URL, opts)
-      .then((mongoose) => mongoose)
+      .then((mongoose) => {
+        console.log('MongoDB connected successfully');
+        return mongoose;
+      })
       .catch((error) => {
-        console.error('MongoDB connection error:', error);
-        throw error; // Rethrow the error after logging
+        console.error('MongoDB connection error:', error.message);
+        throw error; // Rethrow to propagate error
       });
   }
 
   try {
     cached.conn = await cached.promise;
+    return cached.conn;
   } catch (error) {
-    cached.promise = null; // Reset promise to allow retrying
-    throw error; // Throw the error to the calling function
+    cached.promise = null; // Reset on failure
+    console.error('Failed to establish MongoDB connection:', error.message);
+    throw error;
   }
-
-  return cached.conn;
 }
-
-export default dbConnect;
