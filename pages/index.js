@@ -8,38 +8,64 @@ import Featured from "../components/Featured";
 import BreadList from "../components/BreadList";
 import styles from "../styles/Home.module.css";
 
-
-export default function Home({breadList, admin}) {
-const [close, setClose] =useState(true);
-return (
+export default function Home({ breadList, admin }) {
+  const [close, setClose] = useState(true);
+  return (
     <div className={styles.container}>
-        <Head>
-            <title>Best Bread cake shop in Lagos</title>
-            <meta name="description" content="Best bread shop in town" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <Featured/>
-        <AddButton setClose={setClose} />
-        <BreadList breadList={breadList} />
-        {!close && <Add setClose={setClose} />}
-
+      <Head>
+        <title>Best Bread Cake Shop in Lagos</title>
+        <meta name="description" content="Best bread shop in town" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <Featured />
+      <AddButton setClose={setClose} />
+      <BreadList breadList={breadList} />
+      {!close && <Add setClose={setClose} />}
     </div>
- );
+  );
 }
 
 export const getServerSideProps = async (ctx) => {
   const myCookie = ctx.req?.cookies || "";
-    let admin = false;
+  let admin = false;
 
-    if (myCookie.token === process.env.TOKEN) {
-      admin = true;
+  if (myCookie.token === process.env.TOKEN) {
+    admin = true;
+  }
+
+  const fetchDataWithRetry = async (url, retries = 3, delay = 2000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await axios.get(url);
+        return response.data;
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error.message);
+
+        if (attempt === retries) {
+          throw error; // Re-throw the error if all retries fail
+        }
+
+        // Wait for the specified delay before retrying
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
+  };
 
- const res = await axios.get("http://localhost:3000/api/products");
-  return {
-    props: {
-      breadList: res.data,
-      admin,
-        },
+  try {
+    const breadList = await fetchDataWithRetry("http://localhost:3000/api/products");
+    return {
+      props: {
+        breadList,
+        admin,
+      },
     };
+  } catch (error) {
+    console.error("Failed to fetch data after retries:", error);
+    return {
+      props: {
+        breadList: [],
+        admin,
+      },
+    };
+  }
 };
