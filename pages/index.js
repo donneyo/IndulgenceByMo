@@ -1,6 +1,5 @@
 import axios from "axios";
 import Head from "next/head";
-import Image from "next/image";
 import { useState } from "react";
 import Add from "../components/Add";
 import AddButton from "../components/AddButton";
@@ -52,7 +51,9 @@ export const getServerSideProps = async (ctx) => {
   };
 
   try {
-    const breadList = await fetchDataWithRetry("http://localhost:3000/api/products");
+    // Use environment variable for API base URL
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const breadList = await fetchDataWithRetry(`${baseURL}/api/products`);
     return {
       props: {
         breadList,
